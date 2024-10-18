@@ -9,15 +9,22 @@ import { useKeyboardEvents } from 'dashboard/composables/useKeyboardEvents';
 
 import WootDropdownItem from 'shared/components/ui/dropdown/DropdownItem.vue';
 import WootDropdownMenu from 'shared/components/ui/dropdown/DropdownMenu.vue';
+import ResolveModal from '../../../custom/components/ResolveModal.vue';
 import wootConstants from 'dashboard/constants/globals';
 import {
   CMD_REOPEN_CONVERSATION,
   CMD_RESOLVE_CONVERSATION,
 } from 'dashboard/helper/commandbar/events';
+import { useResolveModal } from '../../../custom/composables/useResolveModal';
 
 const store = useStore();
 const getters = useStoreGetters();
 const { t } = useI18n();
+const {
+  isResolveModalOpen,
+  hideResolveModal,
+  checkIfConversationHasResolveReason,
+} = useResolveModal();
 
 const arrowDownButtonRef = ref(null);
 const isLoading = ref(false);
@@ -146,7 +153,7 @@ useEmitter(CMD_RESOLVE_CONVERSATION, onCmdResolveConversation);
         icon="checkmark"
         emoji="✅"
         :is-loading="isLoading"
-        @click="onCmdResolveConversation"
+        @click="checkIfConversationHasResolveReason(onCmdResolveConversation)"
       >
         {{ $t('CONVERSATION.HEADER.RESOLVE_ACTION') }}
       </woot-button>
@@ -211,6 +218,11 @@ useEmitter(CMD_RESOLVE_CONVERSATION, onCmdResolveConversation);
         </WootDropdownItem>
       </WootDropdownMenu>
     </div>
+    <ResolveModal
+      v-if="isResolveModalOpen"
+      :on-close="hideResolveModal"
+      @resolve="onCmdResolveConversation"
+    />
   </div>
 </template>
 
