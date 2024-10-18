@@ -2,8 +2,10 @@
 import { useI18n } from 'vue-i18n';
 import { ref } from 'vue';
 
+import { useResolveModal } from '../../../../../custom/composables/useResolveModal';
 import WootDropdownItem from 'shared/components/ui/dropdown/DropdownItem.vue';
 import WootDropdownMenu from 'shared/components/ui/dropdown/DropdownMenu.vue';
+import ResolveModal from '../../../../../custom/components/ResolveModal.vue';
 
 const props = defineProps({
   showResolve: {
@@ -23,6 +25,8 @@ const props = defineProps({
 const emit = defineEmits(['update', 'close']);
 
 const { t } = useI18n();
+const { openResolveModal, isResolveModalOpen, hideResolveModal } =
+  useResolveModal();
 
 const actions = ref([
   { icon: 'checkmark', key: 'resolved' },
@@ -36,6 +40,8 @@ const updateConversations = key => {
     // Open the snooze option for bulk action in the cmd bar.
     const ninja = document.querySelector('ninja-keys');
     ninja?.open({ parent: 'bulk_action_snooze_conversation' });
+  } else if (key === 'resolved') {
+    openResolveModal();
   } else {
     emit('update', key);
   }
@@ -110,5 +116,11 @@ const actionLabel = key => {
         </template>
       </WootDropdownMenu>
     </div>
+    <ResolveModal
+      v-if="isResolveModalOpen"
+      :on-close="hideResolveModal"
+      multiple
+      @resolve="emit('update', 'resolved')"
+    />
   </div>
 </template>
